@@ -1,0 +1,15 @@
+#Extends "Modes/TrackMania/SingleMap.Script.txt"
+
+#Include "Modes/TrackMania/Libs/Archipelago/Effects.Script.txt" as AP
+
+#Setting S_ScriptEnvironment "development"
+
+***StartMatch***
+***
+ClientManiaAppUrl = "Scripts/ManiaApps/Nadeo/AppBase.Script.txt";
+***
+
+***Yield***
+***
+AP::DispatchEffect();
+***

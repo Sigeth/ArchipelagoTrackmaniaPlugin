@@ -1,0 +1,28 @@
+#Include "TextLib" as TL
+
+#Const C_AP_EventType "AP.Effect"
+
+Void ApplyEffect(Text EffectId, Text[] Args) {
+    log("[Archipelago] Playing effect " ^ EffectId );
+    switch(EffectId) {
+        case "test": {
+            log("[Archipelago] test effect played");
+            declare FakeVariable = 3;
+        }
+    }
+}
+
+Void DispatchEffect() {
+	foreach (Event in UIManager.PendingEvents) {
+		if (Event.Type == CUIConfigEvent::EType::OnLayerCustomEvent) {
+			if (Event.CustomEventType == C_AP_EventType) {
+				declare Text EffectId = Event.CustomEventData[0];
+				declare Text[] Args;
+				for (i, 1, Event.CustomEventData.count - 1) {
+					Args.add(Event.CustomEventData[i]);
+				}
+				ApplyEffect(EffectId, Args);
+			}
+		}
+	}
+}
