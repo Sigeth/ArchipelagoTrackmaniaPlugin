@@ -36,9 +36,12 @@ AP_EffSM::UnpauseEffects(Event.Player);
 AP_EffSM::PauseEffects(Event.Player);
 ***
 
-***EventWayPointEndRace***
+***EventWayPoint***
 ***
-AP_EffSM::PauseEffects(Event.Player);
+if (Event.IsEndRace) {
+    AP_EffSM::ResetActiveEffects(Event.Player);
+    AP_EffSM::PauseEffects(Event.Player);
+}
 ***
 
 ***PlayLoop***
@@ -48,7 +51,7 @@ foreach (_Player in AllPlayers) {
     AP_EffSM::UpdateEffectState(_Player, _Delta);
 
     if (AP_EffSM::DoesPlayerNeedRespawn(_Player)) {
-        log("DoesPlayerNeedRespawn True");
+        // log("DoesPlayerNeedRespawn True");
         WaitRaceAndRespawn(_Player);
         SetGamePhase(C_GAMEPHASE_PREPARATION);
     }

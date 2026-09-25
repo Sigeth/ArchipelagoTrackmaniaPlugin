@@ -17,6 +17,24 @@ Void _UnarmEffect(CTmPlayer _Player, Text _EffectId) {
 	}
 }
 
+Boolean _IsEffectApplied(CTmPlayer _Player, Text _EffectId) {
+	switch(_EffectId) {
+		case C_AP_Trap_LowGravity: {
+			return _Player.GravityCoef == 0.5;
+		}
+	}
+	log("[Archipelago] " ^ _EffectId ^ " effect asked if applied but is unknown");
+	return False;
+}
+
+Void _ApplyEffect(CTmPlayer _Player, Text _EffectId) {
+	switch(_EffectId) {
+		case C_AP_Trap_LowGravity: {
+			_Player.GravityCoef = 0.5;
+		}
+	}
+}
+
 Void InitPlayerEffects(CTmPlayer _Player) {
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
 	AP_Effects.clear();
@@ -40,7 +58,7 @@ Void ArmEffect(CTmPlayer _Player, Text _EffectId, Integer _Duration) {
 		return;
 	}
 	if (_Player.IsSpawned && (_Player.RaceStartTime < 0 || Now < _Player.RaceStartTime)) {
-		log("NeedRespawn");
+		// log("NeedRespawn");
 		declare Boolean AP_NeedRespawn for _Player;
 		AP_NeedRespawn = True;
 	}
@@ -73,6 +91,7 @@ Void UpdateEffectState(CTmPlayer _Player, Integer _Delta) {
 }
 
 Void PauseEffects(CTmPlayer _Player) {
+	log("[Archipelago] PauseEffects");
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
 	foreach (_EffectId in C_AP_All_Traps) {
 		declare EffectTimer = AP_Effects[_EffectId];
@@ -82,12 +101,34 @@ Void PauseEffects(CTmPlayer _Player) {
 }
 
 Void UnpauseEffects(CTmPlayer _Player) {
+	log("[Archipelago] UnpauseEffects");
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
 	foreach (_EffectId in C_AP_All_Traps) {
 		declare EffectTimer = AP_Effects[_EffectId];
 		if (EffectTimer.MsLeft > 0) {
-			EffectTimer.Running = True;
+			if (!_IsEffectApplied(_Player, _EffectId)) {
+				_ApplyEffect(_Player, _EffectId);
+				declare Boolean AP_NeedRespawn for _Player;
+				AP_NeedRespawn = True;
+			}
+			else
+			{
+				EffectTimer.Running = True;
+				AP_Effects[_EffectId] = EffectTimer;
+			}
+		}
+	}
+}
+
+Void ResetActiveEffects(CTmPlayer _Player) {
+	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
+	foreach (_EffectId in C_AP_All_Traps) {
+		declare EffectTimer = AP_Effects[_EffectId];
+		if (EffectTimer.MsLeft > 0 && EffectTimer.Running) {
+			EffectTimer.MsLeft = 0;
+			EffectTimer.Running = False;
 			AP_Effects[_EffectId] = EffectTimer;
+			_UnarmEffect(_Player, _EffectId);
 		}
 	}
 }
