@@ -1,15 +1,35 @@
 #Include "TextLib" as TL
+#Include "Modes/TrackMania/Libs/Archipelago/EffectsStateManager.Script.txt" as AP_EffSM
 
 #Const C_AP_EventType "AP.Effect"
 
 Void ApplyEffect(Text EffectId, Text[] Args) {
-    log("[Archipelago] Playing effect " ^ EffectId );
-    switch(EffectId) {
-        case "test": {
-            log("[Archipelago] test effect played");
-            declare FakeVariable = 3;
-        }
-    }
+	foreach (_Player in AllPlayers) {
+		log("[Archipelago] Playing effect " ^ EffectId ^ " on " ^ _Player.User.Login);
+		switch(EffectId) {
+			case "test": {
+				log("[Archipelago] test effect played");
+				declare FakeVariable = 3;
+			}
+			case "tinycar": {
+				// TODO: works weirdly, not finished yet
+				_Player.TinyCar = True;
+				log("[Archipelago] tinycar effect played");
+			}
+			case AP_EffSM::C_AP_Trap_LowGravity: {
+				if (Args.count > 0)
+				{
+					_Player.GravityCoef = 0.5;
+					AP_EffSM::ArmEffect(_Player, EffectId, 30000);
+					log("[Archipelago] lowgravity effect played");
+				}
+				else
+				{
+					log("[Archipelago] lowgravity effect did not play because no args were provided");
+				}
+			}
+		}
+	}
 }
 
 Void DispatchEffect() {

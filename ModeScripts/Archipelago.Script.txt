@@ -1,15 +1,56 @@
 #Extends "Modes/TrackMania/SingleMap.Script.txt"
 
 #Include "Modes/TrackMania/Libs/Archipelago/Effects.Script.txt" as AP
+#Include "Modes/TrackMania/Libs/Archipelago/EffectsStateManager.Script.txt" as AP_EffSM
 
 #Setting S_ScriptEnvironment "development"
 
 ***StartMatch***
 ***
 ClientManiaAppUrl = "Scripts/ManiaApps/Nadeo/AppBase.Script.txt";
+// EnableBonusEvents = True;
+// EnableScaleCar = True;
+// EnableCheckpointBonus = True;
+UiDisplayStuntsNames = True;
+***
+
+***StartMap***
+***
+foreach (_Player in AllPlayers) {
+    AP_EffSM::InitPlayerEffects(_Player);
+}
 ***
 
 ***Yield***
 ***
 AP::DispatchEffect();
+***
+
+***EventStartLine***
+***
+AP_EffSM::UnpauseEffects(Event.Player);
+***
+
+***EventGiveUp***
+***
+AP_EffSM::PauseEffects(Event.Player);
+***
+
+***EventWayPointEndRace***
+***
+AP_EffSM::PauseEffects(Event.Player);
+***
+
+***PlayLoop***
+***
+declare Integer _Delta = AP_EffSM::GetDelta();
+foreach (_Player in AllPlayers) {
+    AP_EffSM::UpdateEffectState(_Player, _Delta);
+
+    if (AP_EffSM::DoesPlayerNeedRespawn(_Player)) {
+        log("DoesPlayerNeedRespawn True");
+        WaitRaceAndRespawn(_Player);
+        SetGamePhase(C_GAMEPHASE_PREPARATION);
+    }
+}
 ***
