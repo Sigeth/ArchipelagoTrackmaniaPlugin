@@ -17,16 +17,9 @@ Void ApplyEffect(Text EffectId, Text[] Args) {
 				log("[Archipelago] tinycar effect played");
 			}
 			case AP_EffSM::C_AP_Trap_LowGravity: {
-				if (Args.count > 0)
-				{
-					_Player.GravityCoef = 0.5;
-					AP_EffSM::ArmEffect(_Player, EffectId, 30000);
-					log("[Archipelago] lowgravity effect played");
-				}
-				else
-				{
-					log("[Archipelago] lowgravity effect did not play because no args were provided");
-				}
+				_Player.GravityCoef = 0.5;
+				AP_EffSM::ArmEffect(_Player, EffectId, 30000);
+				log("[Archipelago] lowgravity effect played");
 			}
 		}
 	}
