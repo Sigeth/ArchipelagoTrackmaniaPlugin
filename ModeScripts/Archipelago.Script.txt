@@ -74,8 +74,9 @@ declare Integer _Delta = AP_EffSM::GetDelta();
 foreach (_Player in AllPlayers) {
     AP_EffSM::UpdateEffectState(_Player, _Delta);
 
-    if (AP_EffSM::DoesPlayerNeedRespawn(_Player)) {
+    if (AP_EffSM::DoesPlayerNeedRespawn(_Player) && Game::IsRacing(_Player)) {
         // log("DoesPlayerNeedRespawn True");
+        AP_EffSM::PauseEffects(_Player);
         WaitRaceAndRespawn(_Player);
         SetGamePhase(C_GAMEPHASE_PREPARATION);
     }

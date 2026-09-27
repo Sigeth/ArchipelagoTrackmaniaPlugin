@@ -1,5 +1,5 @@
 #Const C_AP_Trap_LowGravity "lowgravity"
-#Const C_AP_Trap_ForceRespawn "forcerespawn"
+#Const C_AP_Trap_ForceRestart "forcerestart"
 #Const C_AP_All_Timed_Traps ["lowgravity"]
 
 // TODO: does not work
@@ -53,7 +53,7 @@ Boolean _ApplyEffect(CTmPlayer _Player, Text _EffectId) {
 			_Player.GravityCoef = 0.5;
 			return True;
 		}
-		case C_AP_Trap_ForceRespawn: {
+		case C_AP_Trap_ForceRestart: {
 			declare Boolean AP_NeedRespawn for _Player;
 			AP_NeedRespawn = True;
 			return True;
