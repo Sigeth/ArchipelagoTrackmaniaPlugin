@@ -1,5 +1,11 @@
 #Const C_AP_Trap_LowGravity "lowgravity"
-#Const C_AP_All_Traps ["lowgravity"]
+#Const C_AP_Trap_ForceRespawn "forcerespawn"
+#Const C_AP_All_Timed_Traps ["lowgravity"]
+
+// TODO: does not work
+// #Const C_AP_Trap_BadControl "badcontrol"
+// #Const C_AP_Trap_AccelPenalty "accelpenalty"
+// #Const C_AP_All_Timed_Traps ["lowgravity", "badcontrol", "accelpenalty"]
 
 #Struct K_AP_EffectTimer {
 	Integer MsLeft;
@@ -12,9 +18,16 @@ Void _UnarmEffect(CTmPlayer _Player, Text _EffectId) {
 	switch(_EffectId) {
 		case C_AP_Trap_LowGravity: {
 			_Player.GravityCoef = 1.0;
-			log("[Archipelago] " ^ _EffectId ^ " effect unarmed");
 		}
+		// TODO: does not work
+		// case C_AP_Trap_BadControl: {
+		// 	_Player.ControlCoef = 1.0;
+		// }
+		// case C_AP_Trap_AccelPenalty: {
+		// 	_Player.AccelCoef = 1.0;
+		// }
 	}
+	log("[Archipelago] " ^ _EffectId ^ " effect unarmed");
 }
 
 Boolean _IsEffectApplied(CTmPlayer _Player, Text _EffectId) {
@@ -22,23 +35,47 @@ Boolean _IsEffectApplied(CTmPlayer _Player, Text _EffectId) {
 		case C_AP_Trap_LowGravity: {
 			return _Player.GravityCoef == 0.5;
 		}
+		// TODO: does not work
+		// case C_AP_Trap_BadControl: {
+		// 	return _Player.ControlCoef == 0.1;
+		// }
+		// case C_AP_Trap_AccelPenalty: {
+		// 	return _Player.AccelCoef == 0.1;
+		// }
 	}
 	log("[Archipelago] " ^ _EffectId ^ " effect asked if applied but is unknown");
 	return False;
 }
 
-Void _ApplyEffect(CTmPlayer _Player, Text _EffectId) {
+Boolean _ApplyEffect(CTmPlayer _Player, Text _EffectId) {
 	switch(_EffectId) {
 		case C_AP_Trap_LowGravity: {
 			_Player.GravityCoef = 0.5;
+			return True;
 		}
+		case C_AP_Trap_ForceRespawn: {
+			declare Boolean AP_NeedRespawn for _Player;
+			AP_NeedRespawn = True;
+			return True;
+		}
+		// TODO: does not work
+		// case C_AP_Trap_BadControl: {
+		// 	_Player.ControlCoef = 0.1;
+		// }
+		// case C_AP_Trap_AccelPenalty: {
+		// 	_Player.AccelCoef = 0.1;
+		// }
 	}
+	log(_EffectId ^ " effect is not yet implemented");
+	return False;
 }
 
 Void InitPlayerEffects(CTmPlayer _Player) {
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
 	AP_Effects.clear();
-	AP_Effects[C_AP_Trap_LowGravity] = K_AP_EffectTimer { MsLeft = 0, Running = False };
+	foreach (_EffectId in C_AP_All_Timed_Traps) {
+		AP_Effects[_EffectId] = K_AP_EffectTimer { MsLeft = 0, Running = False };
+	}
 	G_AP_LastTickTime = Now;
 }
 
@@ -53,19 +90,23 @@ Boolean DoesPlayerNeedRespawn(CTmPlayer _Player) {
 
 Void ArmEffect(CTmPlayer _Player, Text _EffectId, Integer _Duration) {
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
-	if (!C_AP_All_Traps.exists(_EffectId)) {
-		log("[Archipelago] ArmEffect: unknown effect id " ^ _EffectId);
+	if (!_ApplyEffect(_Player, _EffectId)) {
+		log(_EffectId ^ " effect did not apply");
 		return;
 	}
-	if (_Player.IsSpawned && (_Player.RaceStartTime < 0 || Now < _Player.RaceStartTime)) {
-		// log("NeedRespawn");
-		declare Boolean AP_NeedRespawn for _Player;
-		AP_NeedRespawn = True;
+	if (C_AP_All_Timed_Traps.exists(_EffectId)) {
+		if(_Player.IsSpawned && (_Player.RaceStartTime < 0 || Now < _Player.RaceStartTime)) {
+			// log("NeedRespawn");
+			declare Boolean AP_NeedRespawn for _Player;
+			AP_NeedRespawn = True;
+		}
+		declare EffectTimer = AP_Effects[_EffectId];
+		EffectTimer.MsLeft = _Duration;
+		AP_Effects[_EffectId] = EffectTimer;
+		log("[Archipelago] " ^ _EffectId ^ " effect armed");
+	} else {
+		log("[Archipelago] " ^ _EffectId ^ " effect played");
 	}
-	declare EffectTimer = AP_Effects[_EffectId];
-	EffectTimer.MsLeft = _Duration;
-	AP_Effects[_EffectId] = EffectTimer;
-	log("[Archipelago] " ^ _EffectId ^ " effect armed");
 }
 
 Integer GetDelta() {
@@ -76,7 +117,7 @@ Integer GetDelta() {
 
 Void UpdateEffectState(CTmPlayer _Player, Integer _Delta) {
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
-	foreach (_EffectId in C_AP_All_Traps) {
+	foreach (_EffectId in C_AP_All_Timed_Traps) {
 		declare EffectTimer = AP_Effects[_EffectId];
 		if (EffectTimer.Running) {
 			EffectTimer.MsLeft -= _Delta;
@@ -93,7 +134,7 @@ Void UpdateEffectState(CTmPlayer _Player, Integer _Delta) {
 Void PauseEffects(CTmPlayer _Player) {
 	log("[Archipelago] PauseEffects");
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
-	foreach (_EffectId in C_AP_All_Traps) {
+	foreach (_EffectId in C_AP_All_Timed_Traps) {
 		declare EffectTimer = AP_Effects[_EffectId];
 		EffectTimer.Running = False;
 		AP_Effects[_EffectId] = EffectTimer;
@@ -103,7 +144,7 @@ Void PauseEffects(CTmPlayer _Player) {
 Void UnpauseEffects(CTmPlayer _Player) {
 	log("[Archipelago] UnpauseEffects");
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
-	foreach (_EffectId in C_AP_All_Traps) {
+	foreach (_EffectId in C_AP_All_Timed_Traps) {
 		declare EffectTimer = AP_Effects[_EffectId];
 		if (EffectTimer.MsLeft > 0) {
 			if (!_IsEffectApplied(_Player, _EffectId)) {
@@ -122,7 +163,7 @@ Void UnpauseEffects(CTmPlayer _Player) {
 
 Void ResetActiveEffects(CTmPlayer _Player) {
 	declare K_AP_EffectTimer[Text] AP_Effects for _Player;
-	foreach (_EffectId in C_AP_All_Traps) {
+	foreach (_EffectId in C_AP_All_Timed_Traps) {
 		declare EffectTimer = AP_Effects[_EffectId];
 		if (EffectTimer.MsLeft > 0 && EffectTimer.Running) {
 			EffectTimer.MsLeft = 0;

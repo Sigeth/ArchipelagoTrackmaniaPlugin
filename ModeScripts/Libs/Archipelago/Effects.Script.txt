@@ -3,25 +3,11 @@
 
 #Const C_AP_EventType "AP.Effect"
 
+//TODO: add duration
 Void ApplyEffect(Text EffectId, Text[] Args) {
 	foreach (_Player in AllPlayers) {
-		log("[Archipelago] Playing effect " ^ EffectId ^ " on " ^ _Player.User.Login);
-		switch(EffectId) {
-			case "test": {
-				log("[Archipelago] test effect played");
-				declare FakeVariable = 3;
-			}
-			case "tinycar": {
-				// TODO: works weirdly, not finished yet
-				_Player.TinyCar = True;
-				log("[Archipelago] tinycar effect played");
-			}
-			case AP_EffSM::C_AP_Trap_LowGravity: {
-				_Player.GravityCoef = 0.5;
-				AP_EffSM::ArmEffect(_Player, EffectId, 30000);
-				log("[Archipelago] lowgravity effect played");
-			}
-		}
+		log("[Archipelago] Arming effect " ^ EffectId ^ " on " ^ _Player.User.Login);
+		AP_EffSM::ArmEffect(_Player, EffectId, 10000);
 	}
 }
 
