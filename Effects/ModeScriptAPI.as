@@ -1,6 +1,6 @@
 namespace Effects
 {
-    bool SendCustomEvent(const string &in title, array<string> data)
+    bool SendEffectEvent(array<string> data)
     {
         auto app = cast<CGameManiaPlanet>(GetApp());
         auto network = app.Network;
@@ -14,8 +14,7 @@ namespace Effects
         for (uint i = 0; i < data.Length; i++) {
             eventData.Add(data[i]);
         }
-        maniaApp.SendCustomEvent(title, eventData);
-        Log::Log("Sent " + title);
+        maniaApp.SendCustomEvent("AP.Effect", eventData);
         return true;
     }
 }

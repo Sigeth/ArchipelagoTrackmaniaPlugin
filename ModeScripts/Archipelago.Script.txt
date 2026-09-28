@@ -1,7 +1,6 @@
 #Extends "Modes/TrackMania/SingleMap.Script.txt"
 
 #Include "Modes/TrackMania/Libs/Archipelago/Effects.Script.txt" as AP
-#Include "Modes/TrackMania/Libs/Archipelago/EffectsStateManager.Script.txt" as AP_EffSM
 
 #Setting S_ScriptEnvironment "development"
 
@@ -16,10 +15,6 @@ UiDisplayStuntsNames = True;
 
 ***StartMap***
 ***
-foreach (_Player in AllPlayers) {
-    AP_EffSM::InitPlayerEffects(_Player);
-}
-
 declare CUILayer G_AP_DebugLayer;
 if (G_AP_DebugLayer != Null) UIManager.UILayerDestroy(G_AP_DebugLayer);
 G_AP_DebugLayer <=> UIManager.UILayerCreate();
@@ -48,37 +43,4 @@ G_AP_DebugLayer.IsVisible = True;
 ***Yield***
 ***
 AP::DispatchEffect();
-***
-
-***EventStartLine***
-***
-AP_EffSM::UnpauseEffects(Event.Player);
-***
-
-***EventGiveUp***
-***
-AP_EffSM::PauseEffects(Event.Player);
-***
-
-***EventWayPoint***
-***
-if (Event.IsEndRace) {
-    AP_EffSM::ResetActiveEffects(Event.Player);
-    AP_EffSM::PauseEffects(Event.Player);
-}
-***
-
-***PlayLoop***
-***
-declare Integer _Delta = AP_EffSM::GetDelta();
-foreach (_Player in AllPlayers) {
-    AP_EffSM::UpdateEffectState(_Player, _Delta);
-
-    if (AP_EffSM::DoesPlayerNeedRespawn(_Player) && Game::IsRacing(_Player)) {
-        // log("DoesPlayerNeedRespawn True");
-        AP_EffSM::PauseEffects(_Player);
-        WaitRaceAndRespawn(_Player);
-        SetGamePhase(C_GAMEPHASE_PREPARATION);
-    }
-}
 ***
