@@ -4,6 +4,7 @@ namespace Effects
     {
         LowGravity,
         ForceRestart,
+        ForceRespawn,
         _Count // keep last, this will convert to the number of effect types in the enum
     }
 

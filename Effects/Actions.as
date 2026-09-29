@@ -24,6 +24,9 @@ namespace Effects
             case EffectType::ForceRestart:
                 playerControl.ScriptedInputs_RequestGiveUp = true;
                 break;
+            case EffectType::ForceRespawn:
+                playerControl.ScriptedInputs_RequestRespawn = true;
+                break;
             default:
                 // should only happen if _Count is used
                 warn("Unknown effect: " + tostring(effectType));
@@ -41,6 +44,8 @@ namespace Effects
                     SendEffectEvent({tostring(effectType), "on"});
                 }
                 break;
+            default:
+                warn("This effect should not be armed: " + tostring(effectType));
         }
         // Log::Log("Armed " + tostring(effectType) + " effect to player " + playerControl.ControlledPlayer.User.Login);
     }
