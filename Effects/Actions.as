@@ -9,6 +9,8 @@ namespace Effects
                 return controlledPlayer.ScriptAPI.GravityCoef == 0.5;
             case EffectType::ForceBrake:
                 return playerControl.ScriptedInputs_Brake;
+            case EffectType::ForceAccelerate:
+                return playerControl.ScriptedInputs_Accelerate;
             default:
                 warn("This effect has no duration: " + tostring(effectType));
                 return false;
@@ -31,6 +33,10 @@ namespace Effects
                 break;
             case EffectType::ForceBrake:
                 SetTimedEffectTimer(effectType, 2000);
+                ArmEffect(playerControl, effectType);
+                break;
+            case EffectType::ForceAccelerate:
+                SetTimedEffectTimer(effectType, 10000);
                 ArmEffect(playerControl, effectType);
                 break;
             default:
@@ -56,6 +62,12 @@ namespace Effects
                     playerControl.ScriptedInputs_Brake = true;
                 }
                 break;
+            case EffectType::ForceAccelerate:
+                if(!IsEffectApplied(playerControl, effectType))
+                {
+                    playerControl.ScriptedInputs_Accelerate = true;
+                }
+                break;
             default:
                 warn("This effect should not be armed: " + tostring(effectType));
         }
@@ -70,6 +82,9 @@ namespace Effects
                 break;
             case EffectType::ForceBrake:
                 playerControl.ScriptedInputs_Brake = false;
+                break;
+            case EffectType::ForceAccelerate:
+                playerControl.ScriptedInputs_Accelerate = false;
                 break;
             default:
                 warn("This effect should not be unarmed: " + tostring(effectType));
