@@ -31,6 +31,9 @@ namespace Effects
             case EffectType::ForceRespawn:
                 playerControl.ScriptedInputs_RequestRespawn = true;
                 break;
+            case EffectType::ForceHorn:
+                playerControl.ScriptedInputs_RequestHorn = true;
+                break;
             case EffectType::ForceBrake:
                 SetTimedEffectTimer(effectType, 2000);
                 ArmEffect(playerControl, effectType);
