@@ -8,6 +8,7 @@ namespace Effects
         ForceHorn,
         ForceBrake,
         ForceAccelerate,
+        Blind,
         _Count // keep last, this will convert to the number of effect types in the enum
     }
 
@@ -31,7 +32,8 @@ namespace Effects
     const array<TimedEffect@> AP_TIMED_EFFECTS = {
         TimedEffect(EffectType::LowGravity),
         TimedEffect(EffectType::ForceBrake),
-        TimedEffect(EffectType::ForceAccelerate)
+        TimedEffect(EffectType::ForceAccelerate),
+        TimedEffect(EffectType::Blind)
     };
     uint lastGameTime = 0;
     CTrackManiaPlayer::ERaceState lastRaceState;
@@ -71,9 +73,9 @@ namespace Effects
                     auto effect = AP_TIMED_EFFECTS[j];
                     if (effect.msLeft > 0)
                     {
-                        if (!IsEffectApplied(playerControl, effect.type))
+                        if (!IsEffectApplied(playground, playerControl, effect.type))
                         {
-                            ArmEffect(playerControl, effect.type);
+                            ArmEffect(playground, playerControl, effect.type);
                         }
                         else
                         {
@@ -82,9 +84,9 @@ namespace Effects
                     }
                     else
                     {
-                        if (IsEffectApplied(playerControl, effect.type))
+                        if (IsEffectApplied(playground, playerControl, effect.type))
                         {
-                            UnarmEffect(playerControl, effect.type);
+                            UnarmEffect(playground, playerControl, effect.type);
                             effect.msLeft = 0;
                         }
                     }
@@ -97,10 +99,10 @@ namespace Effects
                     auto effect = AP_TIMED_EFFECTS[j];
                     if (effect.msLeft > 0)
                     {
-                        if (IsEffectApplied(playerControl, effect.type))
+                        if (IsEffectApplied(playground, playerControl, effect.type))
                         {
                             effect.msLeft = 0;
-                            UnarmEffect(playerControl, effect.type);
+                            UnarmEffect(playground, playerControl, effect.type);
                         }
                     }
                 }
@@ -112,9 +114,9 @@ namespace Effects
                     auto effect = AP_TIMED_EFFECTS[j];
                     if (effect.msLeft > 0)
                     {
-                        if (!IsEffectApplied(playerControl, effect.type))
+                        if (!IsEffectApplied(playground, playerControl, effect.type))
                         {
-                            ArmEffect(playerControl, effect.type);
+                            ArmEffect(playground, playerControl, effect.type);
                             playerControl.ScriptedInputs_RequestGiveUp = true;
                         }
                     }
@@ -139,7 +141,7 @@ namespace Effects
         for (uint i=0; i < playground.GameTerminals.Length; i++)
         {
             CTrackManiaGameTerminal@ playerControl = cast<CTrackManiaGameTerminal>(playground.GameTerminals[i]);
-            OnEffectReceived(playerControl, effectType);
+            OnEffectReceived(playground, playerControl, effectType);
         }
     }
 }
