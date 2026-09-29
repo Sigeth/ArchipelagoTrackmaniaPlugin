@@ -7,6 +7,8 @@ namespace Effects
         {
             case EffectType::LowGravity:
                 return controlledPlayer.ScriptAPI.GravityCoef == 0.5;
+            case EffectType::ForceBrake:
+                return playerControl.ScriptedInputs_Brake;
             default:
                 warn("This effect has no duration: " + tostring(effectType));
                 return false;
@@ -27,6 +29,10 @@ namespace Effects
             case EffectType::ForceRespawn:
                 playerControl.ScriptedInputs_RequestRespawn = true;
                 break;
+            case EffectType::ForceBrake:
+                SetTimedEffectTimer(effectType, 2000);
+                ArmEffect(playerControl, effectType);
+                break;
             default:
                 // should only happen if _Count is used
                 warn("Unknown effect: " + tostring(effectType));
@@ -44,6 +50,12 @@ namespace Effects
                     SendEffectEvent({tostring(effectType), "on"});
                 }
                 break;
+            case EffectType::ForceBrake:
+                if(!IsEffectApplied(playerControl, effectType))
+                {
+                    playerControl.ScriptedInputs_Brake = true;
+                }
+                break;
             default:
                 warn("This effect should not be armed: " + tostring(effectType));
         }
@@ -55,6 +67,9 @@ namespace Effects
         {
             case EffectType::LowGravity:
                 SendEffectEvent({tostring(effectType), "off"});
+                break;
+            case EffectType::ForceBrake:
+                playerControl.ScriptedInputs_Brake = false;
                 break;
             default:
                 warn("This effect should not be unarmed: " + tostring(effectType));

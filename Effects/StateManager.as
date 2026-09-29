@@ -5,6 +5,7 @@ namespace Effects
         LowGravity,
         ForceRestart,
         ForceRespawn,
+        ForceBrake,
         _Count // keep last, this will convert to the number of effect types in the enum
     }
 
@@ -26,7 +27,8 @@ namespace Effects
     
 
     const array<TimedEffect@> AP_TIMED_EFFECTS = {
-        TimedEffect(EffectType::LowGravity)
+        TimedEffect(EffectType::LowGravity),
+        TimedEffect(EffectType::ForceBrake),
     };
     uint lastGameTime = 0;
     CTrackManiaPlayer::ERaceState lastRaceState;
